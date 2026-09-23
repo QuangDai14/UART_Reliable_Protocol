@@ -1,0 +1,28 @@
+# ==========================================
+# Cấu hình bỏ qua các file rác của KeilC
+# ==========================================
+*.o
+*.d
+*.crf
+*.htm
+*.dep
+*.map
+*.lst
+*.bak
+*.uvoptx
+*.uvgui.*
+*.uvguix.*
+DebugConfig/
+Objects/
+Listings/
+RTE/
+
+# ==========================================
+# Cấu hình bỏ qua các file rác của CubeMX
+# ==========================================
+.mxproject
+*.bak
+
+# OS generated files
+.DS_Store
+Thumbs.db
