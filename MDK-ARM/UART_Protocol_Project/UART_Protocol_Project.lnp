@@ -1,0 +1,22 @@
+--cpu Cortex-M3
+"uart_protocol_project\startup_stm32f103xb.o"
+"uart_protocol_project\main.o"
+"uart_protocol_project\stm32f1xx_it.o"
+"uart_protocol_project\stm32f1xx_hal_msp.o"
+"uart_protocol_project\uart_driver.o"
+"uart_protocol_project\stm32f1xx_hal_gpio_ex.o"
+"uart_protocol_project\stm32f1xx_hal.o"
+"uart_protocol_project\stm32f1xx_hal_rcc.o"
+"uart_protocol_project\stm32f1xx_hal_rcc_ex.o"
+"uart_protocol_project\stm32f1xx_hal_gpio.o"
+"uart_protocol_project\stm32f1xx_hal_dma.o"
+"uart_protocol_project\stm32f1xx_hal_cortex.o"
+"uart_protocol_project\stm32f1xx_hal_pwr.o"
+"uart_protocol_project\stm32f1xx_hal_flash.o"
+"uart_protocol_project\stm32f1xx_hal_flash_ex.o"
+"uart_protocol_project\stm32f1xx_hal_exti.o"
+"uart_protocol_project\system_stm32f1xx.o"
+--library_type=microlib --strict --scatter "UART_Protocol_Project\UART_Protocol_Project.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "UART_Protocol_Project.map" -o UART_Protocol_Project\UART_Protocol_Project.axf
