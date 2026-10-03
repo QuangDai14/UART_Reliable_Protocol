@@ -1,0 +1,13 @@
+# Dự án: Giao thức truyền dữ liệu tin cậy qua UART
+
+**Thành viên nhóm:**
+
+1. Đồng Quang Đại (Trưởng nhóm / SV1) - Phụ trách: ...
+2. Nguyễn Văn Hùng - Phụ trách: ...
+3. \[Tên SV3] - Phụ trách: ...
+4. \[Tên SV4] - Phụ trách: ...
+
+**Hướng dẫn sử dụng Git cơ bản:**
+
+* File này dùng để thực hành Git.
+
