@@ -15,6 +15,7 @@
 #include "reliable_protocol.h" 
 #include "timer_driver.h" 
 #include "error_injection.h" // <--- THU VIEN MODULE 3 DA DUOC GOI VAO
+#include "benchmark.h"       // <--- MODULE SO SANH HIEU NANG SAW vs GBN
 #include <stdio.h>
 #include <string.h>
 #include "Anglas_OLED_SSD1306.h"
@@ -218,6 +219,10 @@ void UART_HamNgatNhan(uint8_t chu_cai_nhan) {
         // MACH A (Nhan ACK)
         else if (cai_ro_cua_toi.loai_thu == THU_ACK) {
             uint8_t ack_seq = cai_ro_cua_toi.so_thu_tu;
+            
+            // Chuyen tiep cho module Benchmark (neu dang chay)
+            Benchmark_XuLyACK(ack_seq);
+            
             if (ack_seq >= base && ack_seq < next_seq_num) {
                 char msg[150];
                 sprintf(msg, "\r\n[MACH A] Nhan duoc ACK GOP (Seq %d). TRUOT CUA SO LEN!\r\n", ack_seq);
@@ -234,6 +239,9 @@ void UART_HamNgatNhan(uint8_t chu_cai_nhan) {
         }
         // MACH A (Nhan NACK do Board B phan hoi khi CRC sai)
         else if (cai_ro_cua_toi.loai_thu == THU_NACK) {
+            // Chuyen tiep cho module Benchmark (neu dang chay)
+            Benchmark_XuLyNACK(cai_ro_cua_toi.so_thu_tu);
+            
             char msg[150];
             sprintf(msg, "\r\n[MACH A] Nhan duoc NACK (Loi CRC tai Seq %d). TRUYEN LAI NGAY!\r\n", cai_ro_cua_toi.so_thu_tu);
             UART_GuiBanGoc((uint8_t*)msg, strlen(msg));
@@ -306,8 +314,9 @@ int main(void)
   
   char hello_msg[] = "\r\n=========================================\r\n"
                      "===== BOARD A - BEN PHAT DU LIEU =====\r\n"
-                     "Go cac phim 1, 2, 3, 4 de kich hoat loi\r\n"
-                     "Go phim 0 de huy che do loi.\r\n"
+                     "PB11: Bỏ gói | PB12: Đảo bit\r\n"
+                     "PB13: Chèn rác | PB14: Delay ACK\r\n"
+                     "PB15: CHAY BENCHMARK SAW vs GBN\r\n"
                      "=========================================\r\n";
   UART_GuiBanGoc((uint8_t*)hello_msg, strlen(hello_msg));
   /* USER CODE END 2 */
@@ -318,18 +327,68 @@ int main(void)
   {
       /* ---- DOC NUT NHAN VAT LY CO CHONG NHIEU (DEBOUNCE) BANG THANH GHI ---- */
       {
-          uint8_t c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+          uint8_t c11 = 0, c12 = 0, c13 = 0, c14 = 0, c15 = 0;
           for(int i=0; i<5; i++) {
-              if (~GPIOB->IDR & (1 << 12)) c1++;
-              if (~GPIOB->IDR & (1 << 13)) c2++;
-              if (~GPIOB->IDR & (1 << 14)) c3++;
-              if (~GPIOB->IDR & (1 << 15)) c4++;
+              if (~GPIOB->IDR & (1 << 11)) c11++;
+              if (~GPIOB->IDR & (1 << 12)) c12++;
+              if (~GPIOB->IDR & (1 << 13)) c13++;
+              if (~GPIOB->IDR & (1 << 14)) c14++;
+              if (~GPIOB->IDR & (1 << 15)) c15++;
               HAL_Delay(2); // Lay mau 5 lan, moi lan cach 2ms
           }
-          if (c1 >= 4) { SV3_KichHoatLoi('1'); HAL_Delay(500); }
-          else if (c2 >= 4) { SV3_KichHoatLoi('2'); HAL_Delay(500); }
-          else if (c3 >= 4) { SV3_KichHoatLoi('3'); HAL_Delay(500); }
-          else if (c4 >= 4) { SV3_KichHoatLoi('4'); HAL_Delay(500); }
+          // PB11-PB14: Kich hoat 4 loai loi SV3
+          if (c11 >= 4) { SV3_KichHoatLoi('1'); HAL_Delay(500); }
+          else if (c12 >= 4) { SV3_KichHoatLoi('2'); HAL_Delay(500); }
+          else if (c13 >= 4) { SV3_KichHoatLoi('3'); HAL_Delay(500); }
+          else if (c14 >= 4) { SV3_KichHoatLoi('4'); HAL_Delay(500); }
+          // PB15: CHAY BENCHMARK SO SANH STOP-AND-WAIT vs GO-BACK-N
+          else if (c15 >= 4) {
+              HAL_Delay(500);
+              UART_GuiBanGoc((uint8_t*)"\r\n*** BAT DAU BENCHMARK SO SANH SAW vs GBN ***\r\n", 50);
+              
+              // Reset Board B truoc khi chay benchmark
+              // (Board B se tu reset seq khi nhan du 8 goi, nen chay 104 goi (boi so cua 8) de Board B luon ve 0)
+              
+              #define BENCHMARK_SO_GOI 104
+              
+              KetQuaBenchmark_t ket_qua_saw, ket_qua_gbn;
+              
+              // Buoc 1: Chay Stop-and-Wait (gui tung goi mot)
+              Benchmark_StopAndWait(BENCHMARK_SO_GOI, nhiet_do_gui, do_am_gui, &ket_qua_saw);
+              
+              HAL_Delay(3000); // Nghi 3 giay de Board B on dinh
+              
+              // Buoc 2: Chay Go-Back-N (cua so truot W=4)
+              Benchmark_GoBackN(BENCHMARK_SO_GOI, nhiet_do_gui, do_am_gui, 4, &ket_qua_gbn);
+              
+              // Buoc 3: In bang so sanh ket qua
+              Benchmark_InKetQua(&ket_qua_saw, &ket_qua_gbn, BENCHMARK_SO_GOI);
+              
+              // Hien thi ket qua len OLED
+              char txt[30];
+              OLED_Clear();
+              OLED_Print_Text(0, 0, 1, "=== BENCHMARK ===");
+              sprintf(txt, "SAW:%.1f g/s", ket_qua_saw.thong_luong);
+              OLED_Print_Text(2, 0, 1, txt);
+              sprintf(txt, "GBN:%.1f g/s", ket_qua_gbn.thong_luong);
+              OLED_Print_Text(4, 0, 1, txt);
+              float ti_le = (ket_qua_saw.thong_luong > 0) ? ket_qua_gbn.thong_luong / ket_qua_saw.thong_luong : 0;
+              sprintf(txt, "GBN gap %.1fx", ti_le);
+              OLED_Print_Text(6, 0, 1, txt);
+              
+              HAL_Delay(10000); // Hien thi 10 giay
+              
+              // Khoi phuc OLED ve giao dien binh thuong
+              OLED_Clear();
+              OLED_Print_Text(0, 0, 1, "NHOM 10 - BOARD A");
+              OLED_Print_Text(2, 0, 1, "Nhiet do:     C");
+              OLED_Print_Text(4, 0, 1, "Do am  :     %");
+              OLED_Print_Text(6, 0, 1, "Gui:    TO:");
+              
+              // Reset lai cac bien Go-Back-N cho vong lap chinh
+              base = 0; next_seq_num = 0; seq_dang_cho_nhan = 0;
+              tong_goi_gui = 0; tong_lan_timeout = 0;
+          }
       }
 
       /* ---- DOC CAM BIEN DHT11 MOI 2 GIAY ---- */
@@ -358,10 +417,10 @@ int main(void)
           if (Timer_LayThoiGian() - lan_tk_cuoi >= 500) {
               lan_tk_cuoi = Timer_LayThoiGian();
               char txt[20];
-              sprintf(txt, "%lu", tong_goi_gui);
+              sprintf(txt, "%u", tong_goi_gui);
               OLED_Print_Text(6, 24, 1, "    ");
               OLED_Print_Text(6, 24, 1, txt);
-              sprintf(txt, "%lu", tong_lan_timeout);
+              sprintf(txt, "%u", tong_lan_timeout);
               OLED_Print_Text(6, 78, 1, "   ");
               OLED_Print_Text(6, 78, 1, txt);
           }
@@ -516,16 +575,16 @@ static void MX_GPIO_Init(void)
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
   // ---------------------------------------------------------
-  // CAU HINH NUT NHAN (PB12-PB15) BANG THANH GHI CHUAN YEU CAU DO AN
+  // CAU HINH NUT NHAN (PB11-PB15) BANG THANH GHI CHUAN YEU CAU DO AN
   // ---------------------------------------------------------
   RCC->APB2ENR |= (1 << 3); // Bat Clock GPIOB
   
-  // Xoa cau hinh cu va set Input Pull-up/Pull-down (0x8) cho PB12-PB15
-  GPIOB->CRH &= 0x0000FFFF;
-  GPIOB->CRH |= 0x88880000;
+  // Xoa cau hinh cu va set Input Pull-up/Pull-down (0x8) cho PB11-PB15
+  GPIOB->CRH &= 0x00000FFF; // Clear bits 12 to 31 (PB11 to PB15)
+  GPIOB->CRH |= 0x88888000; // Set 0x8 for PB11 to PB15
   
   // Bat Pull-Up de ghim dien ap muc Cao (chong nhieu)
-  GPIOB->ODR |= (1 << 12) | (1 << 13) | (1 << 14) | (1 << 15);
+  GPIOB->ODR |= (1 << 11) | (1 << 12) | (1 << 13) | (1 << 14) | (1 << 15);
   
   /* USER CODE END MX_GPIO_Init_2 */
 }

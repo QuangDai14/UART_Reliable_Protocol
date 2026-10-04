@@ -4,6 +4,7 @@
 "uart_protocol_project\reliable_protocol.o"
 "uart_protocol_project\timer_driver.o"
 "uart_protocol_project\error_injection.o"
+"uart_protocol_project\benchmark.o"
 "uart_protocol_project\main.o"
 "uart_protocol_project\stm32f1xx_it.o"
 "uart_protocol_project\stm32f1xx_hal_msp.o"
