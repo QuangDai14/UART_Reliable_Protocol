@@ -415,6 +415,16 @@
               <FilePath>..\Core\Src\error_injection.c</FilePath>
             </File>
             <File>
+              <FileName>delay.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\delay.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_board_b.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\app_board_b.c</FilePath>
+            </File>
+            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/main.c</FilePath>

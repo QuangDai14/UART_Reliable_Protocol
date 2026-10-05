@@ -9,6 +9,7 @@
 #define INC_ANGLAS_OLED_SSD1306_H_
 
 /* Includes ------------------------------------------------------------------*/
+#include "main.h"
 
 /* Exported types ------------------------------------------------------------*/
 extern I2C_HandleTypeDef hi2c1;

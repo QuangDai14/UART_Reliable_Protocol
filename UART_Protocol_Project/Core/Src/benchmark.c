@@ -3,7 +3,7 @@
 #include "reliable_protocol.h"
 #include "timer_driver.h"
 #include "error_injection.h"
-#include "main.h"
+#include "delay.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -182,7 +182,7 @@ void Benchmark_GoBackN(uint16_t so_goi, uint8_t nhiet_do, uint8_t do_am, uint8_t
                 timer_active = 1;
             }
             next_seq++;
-            HAL_Delay(10); // Delay nho de Board B kip xu ly
+            delay_ms(10); // Delay nho de Board B kip xu ly
         }
         
         // Cho ACK hoac Timeout

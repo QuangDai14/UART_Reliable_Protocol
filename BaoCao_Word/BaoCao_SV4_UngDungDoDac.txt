@@ -1,0 +1,24 @@
+﻿# BÁO CÁO PHẦN VIỆC SINH VIÊN 4: ỨNG DỤNG, ĐO ĐẠC & BENCHMARK THÔNG LƯỢNG
+
+## I. Mục tiêu & Vấn đề giải quyết
+Sinh viên 4 bao quát toàn bộ Tầng Ứng Dụng (Application Layer). Đưa giao thức vào phục vụ bài toán thực tế (Truyền cảm biến DHT11), hiển thị giao diện HMI (OLED) để quan sát thống kê, và xây dựng hệ thống Benchmark đánh giá KPI, so sánh trực diện Stop-and-Wait với Go-Back-N bằng các chỉ số toán học rõ ràng.
+
+## II. Cơ sở lý thuyết đo đạc hiệu năng
+- **Thông lượng (Throughput - gói/giây):** Thể hiện khả năng đáp ứng của mạng. Công thức: Thông lượng = (Tổng số gói thành công) / (Thời gian hoàn thành tính bằng giây).
+- **Nút thắt cổ chai xử lý (Processing Bottleneck):** Trong mạng máy tính, đôi khi đường truyền có tốc độ rất cao (băng thông rộng), nhưng thiết bị nhận (Receiver) có CPU yếu, hoặc bận làm tác vụ khác (như in log, vẽ màn hình) sẽ không kịp tiêu thụ dữ liệu, dẫn đến tràn bộ đệm phần cứng (Buffer Overrun).
+
+## III. Phân tích và Giải thích Code
+**1. Tại sao OLED không làm treo ngắt UART?**
+- Việc vẽ chữ lên OLED qua giao tiếp I2C rất chậm (tốn hàng chục ms). Nếu đưa hàm vẽ OLED vào trong ngắt (Interrupt) UART, nó sẽ làm sập toàn bộ hệ thống truyền thông vì block CPU.
+- Code được thiết kế: Ngắt UART chỉ làm nhiệm vụ bóc tách gói và bật CỜ (Flag co_du_lieu_moi = true). Việc vẽ OLED được đưa ra vòng lặp while(1) ở hàm main(), kết hợp với Timer_LayThoiGian() để chỉ vẽ mới sau mỗi 500ms. Điều này giúp tối ưu hóa Real-time cho hệ thống.
+
+**2. Thiết kế Benchmark (104 gói) và Hiện tượng Mạng thực tế:**
+- Hàm Benchmark tự động tắt đọc DHT11 để dồn 100% CPU chạy giả lập 104 gói tin tin cậy. Số 104 được chọn vì là bội số của 8, đảm bảo kết thúc vòng Stop-and-Wait, biến seq_dang_cho_nhan của Board B quay đúng về 0, khớp hoàn hảo để Go-Back-N chạy tiếp mà không bị lệch sóng (Desync).
+- **Phát hiện thú vị khi Code:** Thực tế khi ép chạy Go-Back-N (bắn 4 gói liên thanh), Board B đã bị Tràn bộ đệm UART vì nó đang mải dùng hàm sprintf mất 6ms để in log ra máy tính. Code đã phải bổ sung HAL_Delay(10) vào Go-Back-N để Board B kịp thở. Qua đó sinh viên rút ra bài học: *Go-Back-N nếu thiếu Flow Control (Kiểm soát luồng) sẽ làm sập bộ đệm bên nhận, dẫn đến chậm hơn cả Stop-and-wait trên môi trường mạng cục bộ UART.*
+
+## IV. Hướng dẫn Test và Kịch bản Demo
+- **Mục tiêu Demo:** Thống kê gói tin lỗi (Demo kịch bản 4 của đề) và So sánh thông lượng (Kịch bản 5).
+- **Cách Test Thực Tế:** 
+  - Cho hệ thống tự chạy mặc định khoảng 10 phút, chỉ vào thông số OK: ... trên màn hình OLED Board B nhảy liên tục mà không sót gói nào, để chứng minh độ bền bỉ khi "gửi 10.000 gói".
+  - Nhấn nút PB15: Hệ thống chuyển sang màn hình xanh Benchmark. Chờ khoảng vài giây, mở Hercules (Board A) lên sẽ thấy một bảng Kẻ ô khung viền ASCII hiện ra, thống kê rõ ràng GBN chậm hơn/nhanh hơn SAW bao nhiêu %, tổng số timeout.
+  - Vừa chạy Benchmark (PB15) vừa liên tục bấm nút chèn lỗi PB11. Lúc này bảng kết quả sẽ cho ra một biểu đồ thông lượng hoàn toàn khác (GBN thể hiện sức mạnh lấp đầy cửa sổ khi có lỗi so với SAW).

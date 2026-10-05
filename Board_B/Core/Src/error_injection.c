@@ -1,6 +1,6 @@
 #include "error_injection.h"
 #include "uart_driver.h"
-#include "main.h" // de dung HAL_Delay
+#include "delay.h"
 #include <string.h>
 
 // Tu dien cac loai benh ly (Loi) can gia lap tren mang
@@ -113,7 +113,7 @@ void SV3_GuiCoChenLoi(uint8_t* phong_bi, uint16_t kich_thuoc, bool la_thu_ack) {
         UART_GuiBanGoc((uint8_t*)msg, strlen(msg));
         
         // Dong bang CPU trong 4000ms. Lam cho ACK ve tre, hien tuong Lag mang xay ra
-        HAL_Delay(4000); 
+        delay_ms(4000); 
         
         // 4 giay sau moi chiu tha ACK ra cap. Ben gui se nghi la dut cap va truyen lai DATA, gay ra loi trung lap (Duplicate)
         UART_GuiBanGoc(phong_bi, kich_thuoc);
