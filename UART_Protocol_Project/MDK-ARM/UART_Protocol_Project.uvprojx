@@ -137,7 +137,11 @@
             <DriverSelection>4101</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
+<<<<<<< HEAD
           <Flash2>BIN\UL2CM3.DLL</Flash2>
+=======
+          <Flash2>BIN\UL2V8M.DLL</Flash2>
+>>>>>>> f0906e27439b2f32439d04708a3c69951c4512b4
           <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
