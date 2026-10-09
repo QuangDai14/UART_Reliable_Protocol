@@ -1,0 +1,28 @@
+﻿# BÁO CÁO PHẦN VIỆC SINH VIÊN 2: TẦNG TIN CẬY & CỬA SỔ TRƯỢT (TRANSPORT LAYER)
+
+## I. Mục tiêu & Vấn đề giải quyết
+Sinh viên 2 đảm nhiệm **Tầng Giao Vận (Transport Layer)**. Dù SV1 đã giúp phát hiện gói lỗi bằng CRC, nhưng UART vật lý vẫn có thể làm rơi vãi mất gói tin, hoặc ngắt kết nối tạm thời. 
+Sinh viên 2 giải quyết bài toán: Đảm bảo dữ liệu đến đích nguyên vẹn, theo đúng thứ tự, không bị trùng lặp, và cải thiện thông lượng mạng bằng thuật toán Cửa sổ trượt.
+
+## II. Cơ sở lý thuyết
+- **ARQ (Automatic Repeat reQuest):** Giao thức yêu cầu truyền lại tự động. Nếu Board B nhận đúng, nó gửi ACK (Acknowledge). Nếu sai CRC, nó gửi NACK.
+- **Vấn đề gói trùng lặp (Duplicate):** Nếu Board B nhận được gói, trả ACK, nhưng ACK bị đứt trên đường về. Board A tưởng mất nên gửi lại. Board B sẽ nhận gói đó lần 2. Do đó, cần **Đánh số thứ tự (Sequence Number)** từ 0-7 để Board B biết gói nào đã nhận rồi thì vứt bỏ bản copy.
+- **Go-Back-N (Cửa sổ trượt W=4):** Nâng cấp từ Stop-and-Wait (chờ xong 1 gói mới gửi gói tiếp theo, rất chậm). Go-Back-N cho phép gửi "liên thanh" tối đa 4 gói (Pipelining) trước khi cần chờ ACK, giúp lấp đầy đường ống truyền dẫn, tối đa hóa thông lượng mạng. Khái niệm **Cumulative ACK** (ACK lũy kế) được áp dụng.
+
+## III. Phân tích và Giải thích Code
+**1. Cơ chế lọc gói trùng tại TangTinCay_Receiver (Board B)**
+- Biến seq_dang_cho_nhan theo dõi thứ tự mong muốn. Nếu nhận được gói DATA đúng CRC nhưng seq_nhan_duoc != seq_dang_cho_nhan, nghĩa là gói cũ bị truyền lại. 
+- **Cách xử lý:** Lập tức vứt bỏ phần dữ liệu (bảo vệ toàn vẹn Tầng Ứng Dụng), NHƯNG vẫn phải **gửi lại ACK** cho gói cũ đó. Tại sao? Vì nếu không gửi ACK, Board A sẽ bị kẹt mãi mãi do Timeout liên tục.
+
+**2. Cơ chế Cumulative ACK tại Benchmark_GoBackN_Sender (Board A)**
+- Cửa sổ trượt quản lý bởi 2 biến ase và 
+ext_seq.
+- Khi nhận được 1 ACK mang số thứ tự X, code thực hiện một vòng lặp while (candidate < next_seq) để tịnh tiến ase lên X + 1. 
+- **Tại sao viết như vậy?** Nhờ Cumulative ACK, nếu gói ACK(0) bị mất trên đường đi, nhưng ACK(1) về tới nơi, hàm này vẫn tự động trượt ase lên qua cả 0 và 1, giúp hệ thống kháng nhiễu ACK cực kỳ kiên cường.
+
+## IV. Hướng dẫn Test và Kịch bản Demo
+- **Mục tiêu Demo:** Chứng minh khắc phục được Mất ACK và vứt bỏ Trùng lặp (Kịch bản 1 & 2 của đề bài).
+- **Cách Test Thực Tế:** Bấm nút chèn lỗi Trễ ACK (PB14) bên Board A (hoặc Board trung gian). Nút này đóng băng CPU 4 giây không gửi ACK.
+- **Kết quả:** Board A chờ ACK không được, tính là Timeout -> lùi 
+ext_seq = base và truyền lại gói đó. Board B nhận lại gói đó lần 2, phát hiện trùng thứ tự seq, lập tức tăng biến đếm Duplicate (D) trên OLED, từ chối dữ liệu và gửi lại ACK để giải phóng Board A. 
+- Nếu bấm Đảo Bit (PB12), CRC sai -> NACK được gửi về -> Board A lập tức gửi lại không cần chờ Timeout 3 giây.
