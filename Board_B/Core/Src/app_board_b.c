@@ -36,6 +36,12 @@ void UART_HamNgatNhan(uint8_t chu_cai_nhan) {
     if (is_done == KETQUA_OK) {
         if (cai_ro_cua_toi.loai_thu == THU_DATA) {
             char msg[150];
+            
+            // =================================================================
+            // TRUONG HOP 1: NHAN DUNG THU TU GOI TIN DANG CHO (Seq == seq_dang_cho_nhan)
+            // VI DU: Board B dang doi goi Seq=0. Goi bay den dung la Seq=0.
+            // -> Hop le 100%! Lay du lieu cam bien ra de hien thi len OLED.
+            // =================================================================
             if (cai_ro_cua_toi.so_thu_tu == seq_dang_cho_nhan) {
                 // NHAN DUNG THU TU - Lay du lieu ra xai
                 sprintf(msg, "\r\n[BOARD B] Nhan DUNG (Seq %d). Nhiet do: %d, Do am: %d\r\n", 
@@ -46,51 +52,74 @@ void UART_HamNgatNhan(uint8_t chu_cai_nhan) {
                 
                 // Lay du lieu cam bien tu goi tin
                 if (cai_ro_cua_toi.do_dai >= 2) {
-                    nhiet_do_nhan = cai_ro_cua_toi.ruot_thu[0];
-                    do_am_nhan    = cai_ro_cua_toi.ruot_thu[1];
-                    co_du_lieu_moi = true;
+                    nhiet_do_nhan = cai_ro_cua_toi.ruot_thu[0]; // Byte 0: Nhiet do
+                    do_am_nhan    = cai_ro_cua_toi.ruot_thu[1]; // Byte 1: Do am
+                    co_du_lieu_moi = true;                     // Bat co bao cho OLED cap nhat
                 }
                 
-                tong_goi_nhan++;
-                seq_dang_cho_nhan++;
+                tong_goi_nhan++;     // Tang bien dem goi OK tren OLED
+                seq_dang_cho_nhan++; // Tang ky vong len goi tiep theo (vi du 0 -> 1)
                 
-                // KHI NHAN DU 8 GOI (0 DEN 7), RESET VE 0 DE DONG BO VOI BOARD A
+                // =============================================================
+                // CO CHE QUAY VONG SO THU TU (MODULO 8: 0 DEN 7):
+                // Khi da nhan du 8 goi (tu 0 den 7), reset seq ve 0 de dong bo voi A!
+                // =============================================================
                 if (seq_dang_cho_nhan >= 8) {
                     seq_dang_cho_nhan = 0;
                     UART_GuiBanGoc((uint8_t*)"\r\n[BOARD B] Da nhan du 8 goi. Reset Seq ve 0 de doi phien moi!\r\n", 64);
                 }
-            } else {
-                // GOI TRUNG LAP hoac SAI THU TU
+            } 
+            // =================================================================
+            // TRUONG HOP 2: GOI TRUNG LAP (DUPLICATE) HOAC LAC THU TU
+            // VI DU: Board B da nhan goi 0 roi va dang cho goi 1 (seq_dang_cho = 1).
+            // Nhung tren duong ve, ACK(0) bi rot mang. Board A bi Timeout nen gui lai goi 0 lan 2!
+            // Khi goi 0 toi: cai_ro_cua_toi.so_thu_tu (0) != seq_dang_cho_nhan (1).
+            // -> BO LOC TRUNG KICH HOAT: Vut bo du lieu, KHONG cho hien thi len OLED!
+            // =================================================================
+            else {
                 sprintf(msg, "\r\n[BOARD B] TRUNG LAP! Doi Seq %d, nhan Seq %d. Vut data!\r\n", 
                         seq_dang_cho_nhan, cai_ro_cua_toi.so_thu_tu);
                 UART_GuiBanGoc((uint8_t*)msg, strlen(msg));
-                tong_goi_trung++;
+                tong_goi_trung++; // Tang bien dem "D" (Duplicate) tren OLED
+                // CHU Y: O day KHONG gan nhiet_do_nhan va KHONG bat co_du_lieu_moi!
             }
             
-            // Go-Back-N: Luon tra ACK luy ke (Cumulative ACK) cho goi dung gan nhat
+            // =================================================================
+            // QUY TAC SONG CON CUA GO-BACK-N: LUON TRA ACK CHO GOI DUNG GAN NHAT!
+            // TAI SAO PHAI GUI ACK KE CA KHI NHAN DUOC GOI TRUNG LAP?
+            // VI DU: O tren Board A gui lai goi 0 vi no chua nhan duoc ACK(0).
+            // Neu Board B thay goi trung ma IM LANG khong gui ACK, thi Board A se bi ket
+            // trong vong lap Timeout vo tan (Deadlock)!
+            // Vi vay, du vut bo du lieu trung, B BAT BUOC phai gui lai ACK de cuu thoat A!
+            // =================================================================
             RoDungThu_t thu_ack;
             thu_ack.loai_thu = THU_ACK;
             
+            // Tinh so thu tu ACK luy ke:
             if (seq_dang_cho_nhan == 0) {
-                thu_ack.so_thu_tu = 7;
+                thu_ack.so_thu_tu = 7; // Neu dang cho 0, nghia la goi dung gan nhat la 7
             } else {
-                thu_ack.so_thu_tu = seq_dang_cho_nhan - 1;
+                thu_ack.so_thu_tu = seq_dang_cho_nhan - 1; // Goi dung gan nhat = dang cho - 1
             }
-            thu_ack.do_dai = 0;
+            thu_ack.do_dai = 0; // ACK chi la giay bien nhan, khong chua ruot data
             
+            // Dong goi va ban ra UART ve lai Board A
             uint8_t phong_bi_xuat[50];
             uint16_t kich_thuoc_phong_bi = 0;
             GiaoThuc_DongGoiThu(&thu_ack, phong_bi_xuat, &kich_thuoc_phong_bi); 
             UART_GuiBanGoc(phong_bi_xuat, kich_thuoc_phong_bi);
         }
     } 
-    // GOI TIN BI SAI CRC16 -> Tra ve NACK
+    // =================================================================
+    // TRUONG HOP 3: GOI TIN BI SAI MA CRC16 (DO NHIEU HOAC SV3 BAM NUT DAO BIT)
+    // =================================================================
     else if (is_done == KETQUA_LOI_CRC) {
         char msg[100];
         sprintf(msg, "\r\n[BOARD B] LOI CRC16 (Seq %d)! Tra NACK...\r\n", cai_ro_cua_toi.so_thu_tu);
         UART_GuiBanGoc((uint8_t*)msg, strlen(msg));
-        tong_loi_crc++;
+        tong_loi_crc++; // Tang bien dem "Err" tren OLED
         
+        // Gui ngay goi tin NACK ve de bao cho Board A truyen lai lap tuc (Fast Retransmit)
         RoDungThu_t thu_nack;
         thu_nack.loai_thu = THU_NACK;
         thu_nack.so_thu_tu = cai_ro_cua_toi.so_thu_tu;

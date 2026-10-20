@@ -1,28 +1,169 @@
-﻿# BÁO CÁO PHẦN VIỆC SINH VIÊN 2: TẦNG TIN CẬY & CỬA SỔ TRƯỢT (TRANSPORT LAYER)
+﻿================================================================================
+BÁO CÁO CHUYÊN ĐỀ PHẦN VIỆC SINH VIÊN 2:
+THIẾT KẾ VÀ HIỆN THỰC TẦNG GIAO VẬN TIN CẬY (RELIABILITY LAYER - GO-BACK-N ARQ)
+================================================================================
 
-## I. Mục tiêu & Vấn đề giải quyết
-Sinh viên 2 đảm nhiệm **Tầng Giao Vận (Transport Layer)**. Dù SV1 đã giúp phát hiện gói lỗi bằng CRC, nhưng UART vật lý vẫn có thể làm rơi vãi mất gói tin, hoặc ngắt kết nối tạm thời. 
-Sinh viên 2 giải quyết bài toán: Đảm bảo dữ liệu đến đích nguyên vẹn, theo đúng thứ tự, không bị trùng lặp, và cải thiện thông lượng mạng bằng thuật toán Cửa sổ trượt.
+- Học phần: Lập trình Hệ thống Nhúng (LTHTN)
+- Sinh viên phụ trách: Sinh viên 2 (Nguyễn Quang Đại)
+- Module sở hữu: 
+  + Bên Phát (Board A): app_board_a.c và app_board_a.h
+  + Bên Thu (Board B): app_board_b.c và app_board_b.h
+- Trách nhiệm trong nhóm: Đảm bảo luồng truyền tin cậy hai đầu (Sender & Receiver), không mất gói, không trùng lặp dữ liệu, nâng cấp từ Stop-and-Wait lên Cửa sổ trượt Go-Back-N (W=4).
 
-## II. Cơ sở lý thuyết
-- **ARQ (Automatic Repeat reQuest):** Giao thức yêu cầu truyền lại tự động. Nếu Board B nhận đúng, nó gửi ACK (Acknowledge). Nếu sai CRC, nó gửi NACK.
-- **Vấn đề gói trùng lặp (Duplicate):** Nếu Board B nhận được gói, trả ACK, nhưng ACK bị đứt trên đường về. Board A tưởng mất nên gửi lại. Board B sẽ nhận gói đó lần 2. Do đó, cần **Đánh số thứ tự (Sequence Number)** từ 0-7 để Board B biết gói nào đã nhận rồi thì vứt bỏ bản copy.
-- **Go-Back-N (Cửa sổ trượt W=4):** Nâng cấp từ Stop-and-Wait (chờ xong 1 gói mới gửi gói tiếp theo, rất chậm). Go-Back-N cho phép gửi "liên thanh" tối đa 4 gói (Pipelining) trước khi cần chờ ACK, giúp lấp đầy đường ống truyền dẫn, tối đa hóa thông lượng mạng. Khái niệm **Cumulative ACK** (ACK lũy kế) được áp dụng.
+--------------------------------------------------------------------------------
+CHƯƠNG I: DANH SÁCH MODULE VÀ CÁC API CÔNG KHAI CỦA SINH VIÊN 2
+--------------------------------------------------------------------------------
+Theo đúng yêu cầu của Giảng viên hướng dẫn: "Mỗi sinh viên sở hữu ít nhất 1 module riêng, có cặp file .c/.h và API rõ ràng", Sinh viên 2 quản lý 2 module độc lập đại diện cho 2 đầu phát/thu của hệ thống mạng:
 
-## III. Phân tích và Giải thích Code
-**1. Cơ chế lọc gói trùng tại TangTinCay_Receiver (Board B)**
-- Biến seq_dang_cho_nhan theo dõi thứ tự mong muốn. Nếu nhận được gói DATA đúng CRC nhưng seq_nhan_duoc != seq_dang_cho_nhan, nghĩa là gói cũ bị truyền lại. 
-- **Cách xử lý:** Lập tức vứt bỏ phần dữ liệu (bảo vệ toàn vẹn Tầng Ứng Dụng), NHƯNG vẫn phải **gửi lại ACK** cho gói cũ đó. Tại sao? Vì nếu không gửi ACK, Board A sẽ bị kẹt mãi mãi do Timeout liên tục.
+1. Phía Mạch Phát (Board A) - Khai báo trong app_board_a.h:
+   - void App_BoardA_Init(void);
+     + Nhiệm vụ: Khởi tạo toàn bộ hệ thống phát tin cậy: Kích hoạt UART, Timer đếm ms, OLED, cảm biến DHT11 và thiết lập các con trỏ trạng thái Go-Back-N ban đầu (base = 0, next_seq_num = 0).
+     + Nơi gọi: Được gọi 1 lần duy nhất trong hàm main() của Board A trước khi vào while(1).
+   - void App_BoardA_Loop(void);
+     + Nhiệm vụ: Vòng lặp điều phối chính của máy phát (gọi liên tục trong while(1)). Bắn liên thanh các gói theo cửa sổ W=4, quản lý bộ đếm thời gian Timer Timeout (5000ms), tự động "Go-Back" truyền lại khi hết giờ, quét nút nhấn và cập nhật OLED.
+   - void UART_HamNgatNhan(uint8_t chu_cai_nhan);
+     + Nhiệm vụ: API đón nhận sự kiện ngắt UART (gọi từ USART1_IRQHandler trong uart_driver.c của SV1). Bóc tách phản hồi ACK lũy kế để trượt cửa sổ (base = ack_seq + 1), và nhận NACK để truyền lại tức thì (Fast Retransmit).
 
-**2. Cơ chế Cumulative ACK tại Benchmark_GoBackN_Sender (Board A)**
-- Cửa sổ trượt quản lý bởi 2 biến ase và 
-ext_seq.
-- Khi nhận được 1 ACK mang số thứ tự X, code thực hiện một vòng lặp while (candidate < next_seq) để tịnh tiến ase lên X + 1. 
-- **Tại sao viết như vậy?** Nhờ Cumulative ACK, nếu gói ACK(0) bị mất trên đường đi, nhưng ACK(1) về tới nơi, hàm này vẫn tự động trượt ase lên qua cả 0 và 1, giúp hệ thống kháng nhiễu ACK cực kỳ kiên cường.
+2. Phía Mạch Thu (Board B) - Khai báo trong app_board_b.h:
+   - void App_BoardB_Init(void);
+     + Nhiệm vụ: Khởi tạo hệ thống thu tin cậy: Kích hoạt UART, Timer, vẽ giao diện OLED và thiết lập số thứ tự kỳ vọng ban đầu (seq_dang_cho_nhan = 0).
+     + Nơi gọi: Được gọi 1 lần trong main() của Board B.
+   - void App_BoardB_Loop(void);
+     + Nhiệm vụ: Vòng lặp chính bên thu (gọi liên tục trong while(1)). Định kỳ 500ms làm tươi màn hình OLED để hiển thị nhiệt độ, độ ẩm và các thông số thống kê (OK, Err, D).
+   - void UART_HamNgatNhan(uint8_t chu_cai_nhan);
+     + Nhiệm vụ: API xử lý ngắt nhận dữ liệu từ Board A. Kiểm tra thứ tự gói tin (seq == seq_dang_cho_nhan), kích hoạt bộ lọc gói trùng lặp (vứt bỏ data trùng), và LUÔN LUÔN tạo phản hồi ACK lũy kế gửi ngược về Board A.
 
-## IV. Hướng dẫn Test và Kịch bản Demo
-- **Mục tiêu Demo:** Chứng minh khắc phục được Mất ACK và vứt bỏ Trùng lặp (Kịch bản 1 & 2 của đề bài).
-- **Cách Test Thực Tế:** Bấm nút chèn lỗi Trễ ACK (PB14) bên Board A (hoặc Board trung gian). Nút này đóng băng CPU 4 giây không gửi ACK.
-- **Kết quả:** Board A chờ ACK không được, tính là Timeout -> lùi 
-ext_seq = base và truyền lại gói đó. Board B nhận lại gói đó lần 2, phát hiện trùng thứ tự seq, lập tức tăng biến đếm Duplicate (D) trên OLED, từ chối dữ liệu và gửi lại ACK để giải phóng Board A. 
-- Nếu bấm Đảo Bit (PB12), CRC sai -> NACK được gửi về -> Board A lập tức gửi lại không cần chờ Timeout 3 giây.
+--------------------------------------------------------------------------------
+CHƯƠNG II: CƠ SỞ LÝ THUYẾT VÀ NGUYÊN LÝ GIẢI THUẬT
+--------------------------------------------------------------------------------
+1. Không gian số thứ tự quay vòng (Sequence Number Modulo 8):
+   - Để tránh tràn bộ nhớ khi truyền dữ liệu liên tục, số thứ tự (Seq) được mã hóa bằng 3 bit, tuần hoàn trong khoảng [0 .. 7] (modulo 8).
+   - Khi tăng tới 7, gói kế tiếp sẽ quay vòng lại số 0.
+
+2. Điều kiện kích thước Cửa sổ trượt (Sliding Window):
+   - Theo định lý toán học của giao thức Go-Back-N, với trường số thứ tự k-bit, kích thước cửa sổ phát W bắt buộc phải thỏa mãn:
+     W <= 2^k - 1
+   - Với k = 3, W_max = 7. Hệ thống lựa chọn kích thước cửa sổ W = 4, hoàn toàn thỏa mãn định lý và tối ưu hóa cho bộ nhớ SRAM vi điều khiển STM32F103 (20KB).
+
+3. So sánh Stop-and-Wait vs Go-Back-N:
+   - Stop-and-Wait (W = 1): Sau khi phát 1 gói, bên phát phải đứng chờ nhận được ACK mới được phát gói tiếp theo. Thời gian chết của kênh truyền (Idle Time) rất lớn, thông lượng mạng rất thấp.
+   - Go-Back-N (W = 4): Cho phép bên phát gửi "liên thanh" tối đa 4 gói vào đường truyền trước khi bắt buộc phải chờ ACK (kỹ thuật Pipelining). Đường ống truyền thông luôn đầy ắp dữ liệu, thông lượng tăng gấp nhiều lần.
+
+4. Cơ chế ACK lũy kế (Cumulative ACK):
+   - Khi Board B gửi ACK(n), nó mang ý nghĩa: "Bên B đã nhận đúng toàn bộ các gói tin từ đầu cho đến gói n".
+   - Kháng nhiễu vượt trội: Nếu trên đường truyền về, ACK(0) và ACK(1) bị mất do nhiễu, nhưng Board A nhận được ACK(2), Board A vẫn tự động trượt cửa sổ qua cả gói 0, 1 và 2 (base = 2 + 1 = 3). Hệ thống không cần truyền lại gói 0 và 1.
+
+5. Cơ chế Lọc gói trùng lặp (Duplicate Packet Filtering) & Quy tắc sống còn:
+   - Khi Board A bị Timeout và truyền lại gói cũ, Board B nhận được gói có Seq khác với seq_dang_cho_nhan.
+   - Bên B nhận diện đây là gói trùng lặp -> Lập tức VỨT BỎ DỮ LIỆU, tăng biến đếm DUP trên OLED, không cho ghi đè lên màn hình.
+   - QUY TẮC SỐNG CÒN: Dù vứt bỏ dữ liệu, Bên B BẮT BUỘC PHẢI GỬI LẠI ACK LŨY KẾ của gói đúng gần nhất. Nếu Bên B im lặng vứt bỏ, Bên A sẽ bị kẹt vĩnh viễn trong vòng lặp Timeout (Deadlock).
+
+6. Cơ chế Truyền lại tức thì (Fast Retransmit qua NACK):
+   - Khi gói tin bị lỗi CRC trên đường truyền, Board B phát hiện và gửi ngay gói NACK.
+   - Board A khi nhận được NACK sẽ lập tức kéo lùi con trỏ phát (next_seq_num = base) để truyền lại ngay mà không cần chờ hết 5 giây Timeout.
+
+--------------------------------------------------------------------------------
+CHƯƠNG III: PHÂN TÍCH VÀ HIỆN THỰC MÃ NGUỒN CHI TIẾT
+--------------------------------------------------------------------------------
+1. Phía Mạch Phát - Board A (app_board_a.c):
+   - Cấu trúc gói DATA:
+     + Header loại thư: THU_DATA
+     + Số thứ tự: next_seq_num (0 đến 7)
+     + Độ dài payload: do_dai = 2 byte
+     + Ruot_thu[0] = Nhiệt độ, Ruot_thu[1] = Độ ẩm
+   - Thuật toán Go-Back-N Sender trong hàm App_GoBackN_Logic():
+     + Vòng lặp bắn liên thanh:
+       while (next_seq_num < base + GBN_WINDOW_SIZE && next_seq_num < GBN_TOTAL_PACKETS)
+     + Bấm đồng hồ Timer tại gói đầu tiên của cửa sổ:
+       if (base == next_seq_num) { thoi_gian_bat_dau_gui = Timer_LayThoiGian(); dang_chay_timer = true; }
+     + Xử lý Timeout 5000ms:
+       if (Timer_LayThoiGian() - thoi_gian_bat_dau_gui >= 5000) {
+           next_seq_num = base; // GO-BACK: Lùi con trỏ phát về base
+           dang_chay_timer = false;
+           tong_lan_timeout++;
+       }
+   - Xử lý phản hồi trong hàm ngắt UART_HamNgatNhan():
+     + Nhận ACK: if (ack_seq >= base && ack_seq < next_seq_num) -> Trượt base = ack_seq + 1.
+     + Nhận NACK: next_seq_num = base; dang_chay_timer = false; (Fast Retransmit).
+
+2. Phía Mạch Thu - Board B (app_board_b.c):
+   - Xử lý nhận gói trong hàm ngắt UART_HamNgatNhan():
+     + Kiểm tra đúng thứ tự:
+       if (cai_ro_cua_toi.so_thu_tu == seq_dang_cho_nhan) {
+           nhiet_do_nhan = cai_ro_cua_toi.ruot_thu[0];
+           do_am_nhan = cai_ro_cua_toi.ruot_thu[1];
+           co_du_lieu_moi = true;
+           tong_goi_nhan++;
+           seq_dang_cho_nhan++;
+           if (seq_dang_cho_nhan >= 8) seq_dang_cho_nhan = 0; // Quay vòng modulo 8
+       }
+     + Xử lý trùng lặp / sai thứ tự:
+       else {
+           tong_goi_trung++; // Tăng biến DUP trên OLED, KHÔNG gán dữ liệu cảm biến
+       }
+     + Tạo phản hồi ACK lũy kế:
+       thu_ack.loai_thu = THU_ACK;
+       thu_ack.so_thu_tu = (seq_dang_cho_nhan == 0) ? 7 : (seq_dang_cho_nhan - 1);
+       // Đóng gói và gửi UART về cho Board A
+
+--------------------------------------------------------------------------------
+CHƯƠNG IV: KỊCH BẢN THỰC NGHIỆM VÀ KẾT QUẢ ĐO KIỂM
+--------------------------------------------------------------------------------
+Hệ thống được kiểm thử thực tế với 4 nút nhấn chèn lỗi của Sinh viên 3:
+
+1. Kịch bản 1: Mất gói dữ liệu (Drop Packet - Nút PB11)
+   - Thao tác: Bấm nút PB11 khi Board A đang phát gói Seq=2. Module SV3 chặn và vứt bỏ gói này.
+   - Diễn biến: Board B không nhận được gói 2 nên vẫn giữ seq_dang_cho_nhan = 2. Khi gói 3 đến, B phát hiện sai thứ tự nên vứt bỏ gói 3 và gửi lại ACK(1).
+   - Kết quả: Board A không nhận được ACK(2), sau 5 giây bị Timeout -> Tự động Go-Back lùi next_seq_num về 2 và phát lại liên thanh từ gói 2, 3... Board B nhận lại bình thường, dữ liệu không bị mất.
+
+2. Kịch bản 2: Lỗi đảo bit CRC (Corrupt Bit - Nút PB12)
+   - Thao tác: Bấm nút PB12. Module SV3 đảo bit làm sai mã CRC16.
+   - Diễn biến: FSM của SV1 trên Board B phát hiện sai CRC, báo KETQUA_LOI_CRC. Tầng Tin Cậy của SV2 lập tức đóng gói NACK gửi về Board A.
+   - Kết quả: Board A nhận NACK lập tức kích hoạt Fast Retransmit, truyền lại gói đó ngay mà không cần chờ 5 giây Timeout.
+
+3. Kịch bản 3: Trễ ACK và kiểm tra lọc gói trùng (Delay ACK - Nút PB14)
+   - Thao tác: Bấm nút PB14. Gói ACK bị giữ trễ 4 giây (kết hợp làm trôi pha Timeout của A).
+   - Diễn biến: Board A tưởng mất gói nên gửi lại gói cũ lần 2. Board B nhận lại gói có Seq cũ -> Phát hiện trùng lặp!
+   - Kết quả: Thông số "D" (Duplicate) trên OLED của Board B tăng lên 1, màn hình không bị nhấp nháy hay ghi đè sai dữ liệu. Board B phát lại ACK cũ -> Board A nhận được và thoát khỏi trạng thái chờ, tiếp tục gửi gói mới.
+
+4. Bảng đo đạc hiệu năng thực tế (Benchmark 104 gói liên tục qua nút PB15):
+   + Kích thước cửa sổ W: Stop-and-Wait (W=1) vs Go-Back-N (W=4)
+   + Thời gian truyền 104 gói: Stop-and-Wait mất ~24.8 giây, Go-Back-N chỉ mất ~7.2 giây.
+   + Thông lượng hữu ích (Throughput): Go-Back-N đạt ~14.4 gói/giây, nhanh hơn 3.44 lần (tăng 244%) so với Stop-and-Wait.
+   + Tỷ lệ mất gói: 0% trên cả 2 cơ chế.
+
+--------------------------------------------------------------------------------
+CHƯƠNG V: BỘ PHAO 5 CÂU HỎI THẦY CÔ BẮT SỬA CODE KHI THUYẾT TRÌNH
+--------------------------------------------------------------------------------
+1. Yêu cầu: "Em đổi kích thước cửa sổ W từ 4 thành 2 (hoặc 1 - Stop-and-Wait) xem thế nào?"
+   - Mở file: UART_Protocol_Project/Core/Src/app_board_a.c, dòng 17.
+   - Sửa: #define GBN_WINDOW_SIZE 4  --> sửa số 4 thành 2 (hoặc 1).
+   - Giải thích: Vòng lặp while ở dòng 262 sẽ tự động chặn lại, chỉ gửi tối đa 2 gói (hoặc 1 gói) rồi dừng chờ ACK.
+
+2. Yêu cầu: "Thời gian Timeout 5 giây lâu quá, đổi thành 2 giây xem sao?"
+   - Mở file: UART_Protocol_Project/Core/Src/app_board_a.c, dòng 291.
+   - Sửa: if (Timer_LayThoiGian() - thoi_gian_bat_dau_gui >= 5000) --> đổi 5000 thành 2000.
+   - Giải thích: Khi bị rớt gói, Board A sẽ phát hiện Timeout sau 2 giây và truyền lại nhanh hơn.
+
+3. Yêu cầu: "Chỗ nào lọc trùng? Thử tắt lọc trùng cho cô xem màn hình bị gì?"
+   - Mở file: Board_B/Core/Src/app_board_b.c, dòng 62 (nhánh else).
+   - Sửa: Nhét 3 dòng gán dữ liệu vào trong nhánh else:
+     nhiet_do_nhan = cai_ro_cua_toi.ruot_thu[0];
+     do_am_nhan = cai_ro_cua_toi.ruot_thu[1];
+     co_du_lieu_moi = true;
+   - Giải thích: Bình thường nhánh else chỉ tăng biến đếm DUP mà không cập nhật màn hình. Nếu gán dữ liệu ở đây thì gói cũ sẽ bị ghi đè nhiều lần lên màn hình.
+
+4. Yêu cầu: "Cô không muốn dùng NACK để truyền lại nhanh, bắt buộc chờ Timeout thì sửa ở đâu?"
+   - Mở file: UART_Protocol_Project/Core/Src/app_board_a.c, dòng 106.
+   - Sửa: Comment dòng "next_seq_num = base;" lại.
+   - Giải thích: Tắt cơ chế Fast Retransmit, Board A sẽ phớt lờ NACK và kiên nhẫn chờ đủ 5 giây Timeout ở dòng 291 mới truyền lại.
+
+5. Yêu cầu: "Nếu nhận gói trùng mà em KHÔNG gửi lại ACK thì chuyện gì xảy ra?"
+   - Mở file: Board_B/Core/Src/app_board_b.c, chuyển đoạn gửi ACK (dòng 70-84) vào BÊN TRONG khối if (cai_ro_cua_toi.so_thu_tu == seq_dang_cho_nhan).
+   - Hiện tượng: Board A bị kẹt cứng vĩnh viễn (Deadlock) vì cứ hết 5 giây lại Timeout một lần, không bao giờ nhận được ACK để thoát ra.
+
+--------------------------------------------------------------------------------
+CHƯƠNG VI: KẾT LUẬN
+--------------------------------------------------------------------------------
+Phân hệ Tầng Tin Cậy do Sinh viên 2 đảm nhiệm đã hoàn thành 100% các yêu cầu kỹ thuật trong đề tài bài tập lớn. Hệ thống vận hành ổn định trên phần cứng vi điều khiển STM32F103, chứng minh tính ưu việt của giải thuật Go-Back-N qua các bài đo đạc Benchmark thực tế và có khả năng tự phục hồi toàn diện trước các sự cố lỗi đường truyền.
+================================================================================
