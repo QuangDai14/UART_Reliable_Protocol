@@ -1,3 +1,9 @@
+﻿/* ============================================================================
+ * TÊN FILE       : main.h
+ * PHỤ TRÁCH      : DÙNG CHUNG CẢ NHÓM (Header Hệ Thống (Core System))
+ * CHỨC NĂNG CHÍNH: Định nghĩa các chân phần cứng, include thư viện HAL STM32F1xx.
+ * CÁC API CHÍNH  : Error_Handler()
+ * ============================================================================ */
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -67,3 +73,4 @@ void Error_Handler(void);
 #endif
 
 #endif /* __MAIN_H */
+

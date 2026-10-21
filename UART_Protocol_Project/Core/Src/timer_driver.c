@@ -1,4 +1,10 @@
-﻿#include "timer_driver.h"
+﻿/* ============================================================================
+ * TÊN FILE       : timer_driver.c
+ * PHỤ TRÁCH      : DÙNG CHUNG CẢ NHÓM (Bộ Đếm Thời Gian Hệ Thống)
+ * CHỨC NĂNG CHÍNH: Tạo bộ đếm mili-giây (SysTick) độc lập, giúp tính toán Timeout và cập nhật màn hình Non-blocking.
+ * CÁC API CHÍNH  : Timer_KhoiTao(), Timer_LayThoiGian()
+ * ============================================================================ */
+#include "timer_driver.h"
 #include "main.h" // De lay cac Dinh nghia thanh ghi cua con chip
 
 /* ==========================================================

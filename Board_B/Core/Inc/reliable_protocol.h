@@ -1,3 +1,9 @@
+﻿/* ============================================================================
+ * TÊN FILE       : reliable_protocol.h
+ * PHỤ TRÁCH      : SINH VIÊN 1 (Tầng Khung & Đồng Bộ)
+ * CHỨC NĂNG CHÍNH: Khai báo cấu trúc gói tin (RoDungThu_t), trạng thái FSM, cờ niêm phong 0x7E và các prototype hàm đóng gói/bóc tách/CRC16.
+ * CÁC API CHÍNH  : RoDungThu_t, TrangThaiNhan_t, GiaoThuc_TinhCRC16(), GiaoThuc_DongGoiThu(), GiaoThuc_BocTachTungChu()
+ * ============================================================================ */
 #ifndef RELIABLE_PROTOCOL_H
 #define RELIABLE_PROTOCOL_H
 

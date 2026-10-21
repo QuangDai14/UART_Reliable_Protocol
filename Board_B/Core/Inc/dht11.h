@@ -1,3 +1,9 @@
+﻿/* ============================================================================
+ * TÊN FILE       : dht11.h
+ * PHỤ TRÁCH      : SINH VIÊN 4 (Cảm Biến Ngoại Vi DHT11)
+ * CHỨC NĂNG CHÍNH: Khai báo kiểu dữ liệu cảm biến DHT11_Data_t và các prototype đọc cảm biến.
+ * CÁC API CHÍNH  : DHT11_Data_t, DHT11_KhoiTao(), DHT11_DocDuLieu()
+ * ============================================================================ */
 /*
  * dht11.h
  * Thu vien doc cam bien nhiet do - do am DHT11
@@ -25,3 +31,4 @@ void DHT11_KhoiTao(void);
 uint8_t DHT11_DocDuLieu(DHT11_Data_t *data);
 
 #endif /* INC_DHT11_H_ */
+

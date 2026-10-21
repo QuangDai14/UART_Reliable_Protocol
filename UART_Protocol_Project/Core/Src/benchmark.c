@@ -1,3 +1,9 @@
+﻿/* ============================================================================
+ * TÊN FILE       : benchmark.c
+ * PHỤ TRÁCH      : SINH VIÊN 4 (Đo Đạc Hiệu Năng & Ứng Dụng)
+ * CHỨC NĂNG CHÍNH: Ép tải 104 gói liên tục, đo đạc thời gian, tính toán Throughput và so sánh trực diện Stop-and-Wait vs Go-Back-N.
+ * CÁC API CHÍNH  : Benchmark_StopAndWait(), Benchmark_GoBackN(), Benchmark_InKetQua()
+ * ============================================================================ */
 #include "benchmark.h"
 #include "uart_driver.h"
 #include "reliable_protocol.h"

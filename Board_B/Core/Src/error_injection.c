@@ -1,3 +1,9 @@
+﻿/* ============================================================================
+ * TÊN FILE       : error_injection.c
+ * PHỤ TRÁCH      : SINH VIÊN 3 (Module Chèn Lỗi Độc Lập)
+ * CHỨC NĂNG CHÍNH: Proxy đánh chặn gói tin UART trước khi phát: Nút PB11 (Bỏ gói - Drop), PB12 (Đảo bit - Corrupt CRC), PB13 (Chèn rác - Garbage), PB14 (Làm trễ ACK 4s).
+ * CÁC API CHÍNH  : SV3_KichHoatLoi(), SV3_GuiCoChenLoi()
+ * ============================================================================ */
 #include "error_injection.h"
 #include "uart_driver.h"
 #include "delay.h"
@@ -127,3 +133,4 @@ void SV3_GuiCoChenLoi(uint8_t* phong_bi, uint16_t kich_thuoc, bool la_thu_ack) {
     // Neu khong bi loi gi, hoac co loi 4 nhung day lai la thu DATA, no se chay thang xuong day va tha di an toan
     UART_GuiBanGoc(phong_bi, kich_thuoc);
 }
+

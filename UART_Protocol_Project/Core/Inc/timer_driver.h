@@ -1,3 +1,9 @@
+﻿/* ============================================================================
+ * TÊN FILE       : timer_driver.h
+ * PHỤ TRÁCH      : DÙNG CHUNG CẢ NHÓM (Bộ Đếm Thời Gian Hệ Thống)
+ * CHỨC NĂNG CHÍNH: Khai báo API lấy thời gian hệ thống mili-giây.
+ * CÁC API CHÍNH  : Timer_KhoiTao(), Timer_LayThoiGian()
+ * ============================================================================ */
 #ifndef TIMER_DRIVER_H
 #define TIMER_DRIVER_H
 

@@ -1,3 +1,9 @@
+﻿/* ============================================================================
+ * TÊN FILE       : uart_driver.c
+ * PHỤ TRÁCH      : SINH VIÊN 1 (Trình Điều Khiển Ngoại Vi UART)
+ * CHỨC NĂNG CHÍNH: Cấu hình thanh ghi UART1, gửi dữ liệu thô và bắt sự kiện ngắt nhận USART1_IRQHandler để đẩy từng byte vào FSM.
+ * CÁC API CHÍNH  : UART_KhoiTao(), UART_GuiBanGoc(), USART1_IRQHandler()
+ * ============================================================================ */
 #include "uart_driver.h"
 #include "stm32f1xx.h"
 #include <stddef.h>
@@ -221,3 +227,4 @@ void USART1_IRQHandler(void) {
  * - Coi bao dong ru len (Co RXNE nay len 1). Nao NVIC reo CPU: "Co khach o phong cho roi, ra hot ngay!"
  * - CPU chay lenh (chu_cai_nhan = USART1->DR) de hot Byte do di. Coi tat, Phong cho lai trong rong don chuyen xe sau.
  * ============================================================================== */
+

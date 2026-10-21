@@ -1,3 +1,9 @@
+﻿/* ============================================================================
+ * TÊN FILE       : reliable_protocol.c
+ * PHỤ TRÁCH      : SINH VIÊN 1 (Tầng Khung & Đồng Bộ)
+ * CHỨC NĂNG CHÍNH: Đóng khung cờ 0x7E, nhồi byte thoát (Byte Stuffing COBS), tính mã CRC16-CCITT, và Máy trạng thái FSM bóc tách gói tin trong ngắt UART.
+ * CÁC API CHÍNH  : GiaoThuc_TinhCRC16(), GiaoThuc_DongGoiThu(), GiaoThuc_BocTachTungChu()
+ * ============================================================================ */
 #include "reliable_protocol.h"
 
 // ==============================================================================

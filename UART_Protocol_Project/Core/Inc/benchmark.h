@@ -1,3 +1,9 @@
+﻿/* ============================================================================
+ * TÊN FILE       : benchmark.h
+ * PHỤ TRÁCH      : SINH VIÊN 4 (Đo Đạc Hiệu Năng & Ứng Dụng)
+ * CHỨC NĂNG CHÍNH: Khai báo cấu trúc kết quả đo kiểm KPI và các hàm thực thi Benchmark tự động.
+ * CÁC API CHÍNH  : KetQuaBenchmark_t, Benchmark_StopAndWait(), Benchmark_GoBackN(), Benchmark_InKetQua()
+ * ============================================================================ */
 #ifndef BENCHMARK_H
 #define BENCHMARK_H
 
@@ -31,3 +37,4 @@ void Benchmark_XuLyACK(uint8_t seq);
 void Benchmark_XuLyNACK(uint8_t seq);
 
 #endif // BENCHMARK_H
+

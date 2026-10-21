@@ -1,4 +1,10 @@
-﻿#ifndef UART_DRIVER_H
+﻿/* ============================================================================
+ * TÊN FILE       : uart_driver.h
+ * PHỤ TRÁCH      : SINH VIÊN 1 (Trình Điều Khiển Ngoại Vi UART)
+ * CHỨC NĂNG CHÍNH: Khai báo prototype khởi tạo phần cứng UART và hàm gửi dữ liệu thô ra chân TX (PA9).
+ * CÁC API CHÍNH  : UART_KhoiTao(), UART_GuiBanGoc()
+ * ============================================================================ */
+#ifndef UART_DRIVER_H
 #define UART_DRIVER_H
 
 #include <stdint.h>
@@ -22,3 +28,4 @@ bool UART_GuiBanGoc(const uint8_t* du_lieu, uint16_t do_dai);
 void UART_HamNgatNhan(uint8_t chu_cai_nhan);
 
 #endif // UART_DRIVER_H
+
