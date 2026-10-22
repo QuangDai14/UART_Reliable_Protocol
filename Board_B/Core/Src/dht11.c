@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : dht11.c
- * PHỤ TRÁCH      : SINH VIÊN 4 (Cảm Biến Ngoại Vi DHT11)
+ * PHỤ TRÁCH      : SINH VIÊN 4 - Nguyễn Văn Hùng (Cảm Biến Ngoại Vi DHT11)
  * CHỨC NĂNG CHÍNH: Giao tiếp 1-Wire trên chân PA1 để đọc dữ liệu nhiệt độ và độ ẩm môi trường.
  * CÁC API CHÍNH  : DHT11_KhoiTao(), DHT11_DocDuLieu()
  * ============================================================================ */

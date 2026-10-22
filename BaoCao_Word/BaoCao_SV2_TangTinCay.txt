@@ -1,10 +1,10 @@
-﻿================================================================================
+================================================================================
 BÁO CÁO CHUYÊN ĐỀ PHẦN VIỆC SINH VIÊN 2:
 THIẾT KẾ VÀ HIỆN THỰC TẦNG GIAO VẬN TIN CẬY (RELIABILITY LAYER - GO-BACK-N ARQ)
 ================================================================================
 
 - Học phần: Lập trình Hệ thống Nhúng (LTHTN)
-- Sinh viên phụ trách: Sinh viên 2 (Nguyễn Quang Đại)
+- Sinh viên phụ trách: Sinh viên 2 (Đồng Quang Đại)
 - Module sở hữu: 
   + Bên Phát (Board A): app_board_a.c và app_board_a.h
   + Bên Thu (Board B): app_board_b.c và app_board_b.h

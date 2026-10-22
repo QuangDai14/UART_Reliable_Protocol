@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : delay.c
- * PHỤ TRÁCH      : DÙNG CHUNG CẢ NHÓM (Hàm Delay Phần Mềm)
+ * PHỤ TRÁCH      : DÙNG CHUNG (SV1: Vũ Trường An, SV2: Đồng Quang Đại, SV3: Nguyễn Duy Khánh, SV4: Nguyễn Văn Hùng)
  * CHỨC NĂNG CHÍNH: Hàm delay bằng vòng lặp for thay thế HAL_Delay để chống xung đột ngắt SysTick trong các hàm nhạy cảm.
  * CÁC API CHÍNH  : delay_ms()
  * ============================================================================ */

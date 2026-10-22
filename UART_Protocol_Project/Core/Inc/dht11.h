@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : dht11.h
- * PHỤ TRÁCH      : SINH VIÊN 4 (Cảm Biến Ngoại Vi DHT11)
+ * PHỤ TRÁCH      : SINH VIÊN 4 - Nguyễn Văn Hùng (Cảm Biến Ngoại Vi DHT11)
  * CHỨC NĂNG CHÍNH: Khai báo kiểu dữ liệu cảm biến DHT11_Data_t và các prototype đọc cảm biến.
  * CÁC API CHÍNH  : DHT11_Data_t, DHT11_KhoiTao(), DHT11_DocDuLieu()
  * ============================================================================ */

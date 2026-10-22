@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : app_board_a.c
- * PHỤ TRÁCH      : SINH VIÊN 2 (Nguyễn Quang Đại) (Tầng Tin Cậy - Phía Phát (Sender))
+ * PHỤ TRÁCH      : SINH VIÊN 2 - Đồng Quang Đại (Tầng Tin Cậy - Phía Phát (Sender))
  * CHỨC NĂNG CHÍNH: Khối điều khiển Mạch Phát (Board A): Thuật toán Go-Back-N (W=4, Seq 0-7), bắn liên thanh, bấm giờ Timeout 5s, trượt Cumulative ACK và xử lý NACK.
  * CÁC API CHÍNH  : App_BoardA_Init(), App_BoardA_Loop(), UART_HamNgatNhan()
  * ============================================================================ */

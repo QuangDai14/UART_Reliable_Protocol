@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : error_injection.c
- * PHỤ TRÁCH      : SINH VIÊN 3 (Module Chèn Lỗi Độc Lập)
+ * PHỤ TRÁCH      : SINH VIÊN 3 - Nguyễn Duy Khánh (Module Chèn Lỗi Độc Lập)
  * CHỨC NĂNG CHÍNH: Proxy đánh chặn gói tin UART trước khi phát: Nút PB11 (Bỏ gói - Drop), PB12 (Đảo bit - Corrupt CRC), PB13 (Chèn rác - Garbage), PB14 (Làm trễ ACK 4s).
  * CÁC API CHÍNH  : SV3_KichHoatLoi(), SV3_GuiCoChenLoi()
  * ============================================================================ */

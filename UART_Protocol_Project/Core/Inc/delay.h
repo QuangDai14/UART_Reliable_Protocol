@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : delay.h
- * PHỤ TRÁCH      : DÙNG CHUNG CẢ NHÓM (Hàm Delay Phần Mềm)
+ * PHỤ TRÁCH      : DÙNG CHUNG (SV1: Vũ Trường An, SV2: Đồng Quang Đại, SV3: Nguyễn Duy Khánh, SV4: Nguyễn Văn Hùng)
  * CHỨC NĂNG CHÍNH: Khai báo prototype hàm delay_ms.
  * CÁC API CHÍNH  : delay_ms()
  * ============================================================================ */

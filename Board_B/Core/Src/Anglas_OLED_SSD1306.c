@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : Anglas_OLED_SSD1306.c
- * PHỤ TRÁCH      : SINH VIÊN 4 (Giao Diện Người Dùng OLED)
+ * PHỤ TRÁCH      : SINH VIÊN 4 - Nguyễn Văn Hùng (Giao Diện Người Dùng OLED)
  * CHỨC NĂNG CHÍNH: Thư viện điều khiển màn hình OLED SSD1306 qua I2C (PB6/PB7) để hiển thị thông số và thống kê.
  * CÁC API CHÍNH  : OLED_Init(), OLED_Clear(), OLED_Print_Text()
  * ============================================================================ */

@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : app_board_b.c
- * PHỤ TRÁCH      : SINH VIÊN 2 (Nguyễn Quang Đại) (Tầng Tin Cậy - Phía Thu (Receiver))
+ * PHỤ TRÁCH      : SINH VIÊN 2 - Đồng Quang Đại (Tầng Tin Cậy - Phía Thu (Receiver))
  * CHỨC NĂNG CHÍNH: Khối điều khiển Mạch Thu (Board B): Kiểm tra số thứ tự Sequence Number, bộ lọc loại bỏ gói trùng lặp (Duplicate Detection), và luôn phản hồi Cumulative ACK giải thoát bên phát.
  * CÁC API CHÍNH  : App_BoardB_Init(), App_BoardB_Loop(), UART_HamNgatNhan()
  * ============================================================================ */

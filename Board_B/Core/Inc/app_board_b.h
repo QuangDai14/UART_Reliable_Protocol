@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : app_board_b.h
- * PHỤ TRÁCH      : SINH VIÊN 2 (Nguyễn Quang Đại) (Tầng Tin Cậy - Phía Thu (Receiver))
+ * PHỤ TRÁCH      : SINH VIÊN 2 - Đồng Quang Đại (Tầng Tin Cậy - Phía Thu (Receiver))
  * CHỨC NĂNG CHÍNH: Khai báo các API điều phối Mạch Thu (Board B) kết nối giữa main.c và ngắt UART.
  * CÁC API CHÍNH  : App_BoardB_Init(), App_BoardB_Loop(), UART_HamNgatNhan()
  * ============================================================================ */

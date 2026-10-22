@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : error_injection.h
- * PHỤ TRÁCH      : SINH VIÊN 3 (Module Chèn Lỗi Độc Lập)
+ * PHỤ TRÁCH      : SINH VIÊN 3 - Nguyễn Duy Khánh (Module Chèn Lỗi Độc Lập)
  * CHỨC NĂNG CHÍNH: Khai báo các chế độ chèn lỗi và API gửi dữ liệu có can thiệp lỗi nhân tạo.
  * CÁC API CHÍNH  : SV3_KichHoatLoi(), SV3_GuiCoChenLoi()
  * ============================================================================ */

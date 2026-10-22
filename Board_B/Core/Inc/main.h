@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : main.h
- * PHỤ TRÁCH      : DÙNG CHUNG CẢ NHÓM (Header Hệ Thống (Core System))
+ * PHỤ TRÁCH      : DÙNG CHUNG (SV1: Vũ Trường An, SV2: Đồng Quang Đại, SV3: Nguyễn Duy Khánh, SV4: Nguyễn Văn Hùng)
  * CHỨC NĂNG CHÍNH: Định nghĩa các chân phần cứng, include thư viện HAL STM32F1xx.
  * CÁC API CHÍNH  : Error_Handler()
  * ============================================================================ */

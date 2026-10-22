@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : uart_driver.h
- * PHỤ TRÁCH      : SINH VIÊN 1 (Trình Điều Khiển Ngoại Vi UART)
+ * PHỤ TRÁCH      : SINH VIÊN 1 - Vũ Trường An (Trình Điều Khiển Ngoại Vi UART)
  * CHỨC NĂNG CHÍNH: Khai báo prototype khởi tạo phần cứng UART và hàm gửi dữ liệu thô ra chân TX (PA9).
  * CÁC API CHÍNH  : UART_KhoiTao(), UART_GuiBanGoc()
  * ============================================================================ */

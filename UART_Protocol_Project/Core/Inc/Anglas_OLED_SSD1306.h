@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : Anglas_OLED_SSD1306.h
- * PHỤ TRÁCH      : SINH VIÊN 4 (Giao Diện Người Dùng OLED)
+ * PHỤ TRÁCH      : SINH VIÊN 4 - Nguyễn Văn Hùng (Giao Diện Người Dùng OLED)
  * CHỨC NĂNG CHÍNH: Khai báo các hàm vẽ văn bản, xóa màn hình và khởi tạo OLED I2C.
  * CÁC API CHÍNH  : OLED_Init(), OLED_Clear(), OLED_Print_Text()
  * ============================================================================ */

@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : uart_driver.c
- * PHỤ TRÁCH      : SINH VIÊN 1 (Trình Điều Khiển Ngoại Vi UART)
+ * PHỤ TRÁCH      : SINH VIÊN 1 - Vũ Trường An (Trình Điều Khiển Ngoại Vi UART)
  * CHỨC NĂNG CHÍNH: Cấu hình thanh ghi UART1, gửi dữ liệu thô và bắt sự kiện ngắt nhận USART1_IRQHandler để đẩy từng byte vào FSM.
  * CÁC API CHÍNH  : UART_KhoiTao(), UART_GuiBanGoc(), USART1_IRQHandler()
  * ============================================================================ */

@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : timer_driver.c
- * PHỤ TRÁCH      : DÙNG CHUNG CẢ NHÓM (Bộ Đếm Thời Gian Hệ Thống)
+ * PHỤ TRÁCH      : DÙNG CHUNG (SV1: Vũ Trường An, SV2: Đồng Quang Đại, SV3: Nguyễn Duy Khánh, SV4: Nguyễn Văn Hùng)
  * CHỨC NĂNG CHÍNH: Tạo bộ đếm mili-giây (SysTick) độc lập, giúp tính toán Timeout và cập nhật màn hình Non-blocking.
  * CÁC API CHÍNH  : Timer_KhoiTao(), Timer_LayThoiGian()
  * ============================================================================ */

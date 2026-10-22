@@ -1,6 +1,6 @@
-﻿/* ============================================================================
+/* ============================================================================
  * TÊN FILE       : main.c
- * PHỤ TRÁCH      : DÙNG CHUNG CẢ NHÓM (Điểm Khởi Đầu Hệ Thống (Core System))
+ * PHỤ TRÁCH      : DÙNG CHUNG (SV1: Vũ Trường An, SV2: Đồng Quang Đại, SV3: Nguyễn Duy Khánh, SV4: Nguyễn Văn Hùng)
  * CHỨC NĂNG CHÍNH: Khởi tạo Clock hệ thống, cấu hình GPIO/I2C bằng thư viện HAL, sau đó nhường toàn quyền điều phối cho App_Board_Init() và App_Board_Loop().
  * CÁC API CHÍNH  : main(), SystemClock_Config()
  * ============================================================================ */
